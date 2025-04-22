@@ -10,116 +10,153 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'App de Navegación',
-      // Configuración de rutas nombradas
-      routes: {
-        '/': (context) => const MainMenuScreen(),
-        '/screen1': (context) => const Screen1(),
-        '/screen2': (context) => const Screen2(),
-        '/screen3': (context) => const Screen3(),
-        '/screen4': (context) => const Screen4(),
-      },
+      title: 'Educación Integral',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       initialRoute: '/',
+      routes: {
+        '/': (context) => const ButtonGridScreen(),
+        '/aseo': (context) => const ContentScreen(title: 'Aseo Personal'),
+        '/cambios': (context) => const ContentScreen(title: 'Cambios Corporales'),
+        '/creencias': (context) => const ContentScreen(title: 'Falsas Creencias'),
+        '/salud': (context) => const ContentScreen(title: 'Salud Mental'),
+        '/perfil': (context) => const ProfileScreen(),
+        '/config': (context) => const SettingsScreen(),
+      },
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MainMenuScreen extends StatelessWidget {
-  const MainMenuScreen({super.key});
+class ButtonGridScreen extends StatelessWidget {
+  const ButtonGridScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Lista de botones con sus respectivas rutas
-    final buttons = [
-      {'title': 'Pantalla 1', 'route': '/screen1', 'color': Colors.blue},
-      {'title': 'Pantalla 2', 'route': '/screen2', 'color': Colors.green},
-      {'title': 'Pantalla 3', 'route': '/screen3', 'color': Colors.orange},
-      {'title': 'Pantalla 4', 'route': '/screen4', 'color': Colors.purple},
-      {'title': 'Opciones', 'route': '/screen1', 'color': Colors.red},
-      {'title': 'Configuración', 'route': '/screen2', 'color': Colors.teal},
+    final List<Map<String, dynamic>> mainButtons = [
+      {'title': 'Aseo personal', 'route': '/aseo', 'icon': Icons.shower},
+      {'title': 'Cambios que tengo', 'route': '/cambios', 'icon': Icons.trending_up},
+      {'title': 'Falsas creencias', 'route': '/creencias', 'icon': Icons.psychology},
+      {'title': 'Salud mental', 'route': '/salud', 'icon': Icons.health_and_safety},
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Menú Principal')),
-      body: GridView.count(
-        crossAxisCount: 2, // 2 columnas
-        padding: const EdgeInsets.all(16.0),
-        childAspectRatio: 1.0, // Relación alto/ancho
-        mainAxisSpacing: 10.0, // Espacio vertical entre items
-        crossAxisSpacing: 10.0, // Espacio horizontal entre items
-        children: buttons.map((button) {
-          return ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: button['color'] as Color,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              padding: const EdgeInsets.all(16.0),
-            ),
-            onPressed: () {
-              Navigator.pushNamed(context, button['route'] as String);
+      appBar: AppBar(
+        title: const Text('Educación Integral'),
+        centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.account_circle),
+            onSelected: (value) {
+              if (value == 'profile') {
+                Navigator.pushNamed(context, '/perfil');
+              } else if (value == 'settings') {
+                Navigator.pushNamed(context, '/config');
+              }
             },
-            child: Text(
-              button['title'] as String,
-              style: const TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem(
+                  value: 'profile',
+                  child: Text('Mi Perfil'),
+                ),
+                const PopupMenuItem(
+                  value: 'settings',
+                  child: Text('Configuración'),
+                ),
+              ];
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Expanded(
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  padding: const EdgeInsets.all(20),
+                  mainAxisSpacing: 15,
+                  crossAxisSpacing: 15,
+                  children: mainButtons.map((button) {
+                    return ElevatedButton.icon(
+                      icon: Icon(button['icon'], size: 30),
+                      label: Text(
+                        button['title'],
+                        textAlign: TextAlign.center,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                      ),
+                      onPressed: () => Navigator.pushNamed(context, button['route']),
+                    );
+                  }).toList(),
+                ),
               ),
-              textAlign: TextAlign.center,
+              const SizedBox(height: 80), // Espacio para el botón redondo
+            ],
+          ),
+          Positioned(
+            bottom: 20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: FloatingActionButton(
+                backgroundColor: Colors.pinkAccent,
+                onPressed: () {  },
+                child: const Icon(Icons.gamepad, size: 50)
+              ),
             ),
-          );
-        }).toList(),
+          ),
+        ],
       ),
     );
   }
 }
 
-// Ejemplo de pantallas destino
-class Screen1 extends StatelessWidget {
-  const Screen1({super.key});
+// Pantallas de ejemplo (debes crearlas en archivos separados)
+class ContentScreen extends StatelessWidget {
+  final String title;
+  const ContentScreen({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pantalla 1')),
-      body: const Center(child: Text('Contenido de la Pantalla 1')),
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Text('Contenido de $title', style: const TextStyle(fontSize: 24)),
+      ),
     );
   }
 }
 
-class Screen2 extends StatelessWidget {
-  const Screen2({super.key});
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pantalla 2')),
-      body: const Center(child: Text('Contenido de la Pantalla 2')),
+      appBar: AppBar(title: const Text('Mi Perfil')),
+
     );
   }
 }
 
-class Screen3 extends StatelessWidget {
-  const Screen3({super.key});
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pantalla 3')),
-      body: const Center(child: Text('Contenido de la Pantalla 3')),
-    );
-  }
-}
+      appBar: AppBar(title: const Text('Configuración')),
 
-class Screen4 extends StatelessWidget {
-  const Screen4({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pantalla 4')),
-      body: const Center(child: Text('Contenido de la Pantalla 4')),
     );
   }
 }
